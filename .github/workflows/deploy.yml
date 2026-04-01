@@ -1,7 +1,6 @@
 # ========================================================== 
 # deploy.yml — Pipeline CI/CD complet 
-# Spring Boot + Maven + Docker + SSH Deploy 
-# ========================================================== 
+# Spring Boot + Maven + Docker + SSH Deploy  
 name: CI/CD — Build, Test & Deploy 
   
 # —————————————————————————————————————————— 
