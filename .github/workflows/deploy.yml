@@ -169,3 +169,20 @@ approbation)
           echo '❌ Le déploiement a échoué !' 
           echo "Commit: ${{ github.sha }}" 
           echo "Consulter les logs ci-dessus pour diagnostiquer." 
+- name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/app
+            cd ~/app
+            # On crée le fichier docker-compose.yml sur le serveur
+            cat <<EOF > docker-compose.yml
+            ${{ secrets.DOCKER_COMPOSE_CONTENT }}
+            EOF
+            
+            # On lance l'infrastructure
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker-compose pull
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker-compose up -d
