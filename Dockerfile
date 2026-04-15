@@ -1,15 +1,24 @@
-# Utilisez une image de base avec Java
-FROM eclipse-temurin:17-jdk
+# STAGE 1 : BUILD
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier le fichier jar généré dans le conteneur
-COPY target/*.jar app.jar
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Exposer le port sur lequel Spring Boot écoute
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# STAGE 2 : RUNTIME
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8080
 
+<<<<<<< HEAD
 # Commande pour lancer l'application Spring Boot
 ENTRYPOINT ["java", "-jar", "/app/docker-demo.jar"]
 # ========================================================== 
@@ -70,3 +79,6 @@ ENV SPRING_PROFILES_ACTIVE=prod
   
 # Commande de démarrage avec options JVM 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+=======
+ENTRYPOINT ["java", "-jar", "app.jar"]
+>>>>>>> 197fd99 (Ajout pipeline CI)
