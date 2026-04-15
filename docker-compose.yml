@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # La base de données
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: user_spring
+      POSTGRES_PASSWORD: password_spring
+      POSTGRES_DB: findb
+    networks:
+      - spring-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Votre application Spring Boot
+  app:
+    image: ${DOCKERHUB_USERNAME}/spring-maven:latest
+    container_name: spring-app
+    ports:
+      - "80:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/findb
+      - SPRING_DATASOURCE_USERNAME=user_spring
+      - SPRING_DATASOURCE_PASSWORD=password_spring
+    depends_on:
+      - db
+    networks:
+      - spring-network
+
+networks:
+  spring-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

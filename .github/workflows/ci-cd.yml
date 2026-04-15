@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installer Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. Build Maven
+      - name: Build Maven
+        run: mvn clean package -DskipTests
+
+      # 4. Build Docker
+      - name: Build Docker image
+        run: docker build -t mon-app .
+
+      # 5. Login Docker Hub
+      - name: Login DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # 6. Tag image
+      - name: Tag image
+        run: docker tag mon-app ${{ secrets.DOCKERHUB_USERNAME }}/mon-app:latest
+
+      # 7. Push image
+      - name: Push image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mon-app:latest

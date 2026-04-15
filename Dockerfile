@@ -1,21 +1,7 @@
-# STAGE 1 : BUILD
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM openjdk:21-jdk-slim
 
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+COPY target/*.jar app.jar
 
-COPY src ./src
-RUN mvn clean package -DskipTests -B
-
-# STAGE 2 : RUNTIME
-FROM eclipse-temurin:17-jre-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/target/*.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
